@@ -13,7 +13,7 @@ async def main():
         return
 
     try:
-        from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
+        from telegram.ext import ApplicationBuilder, MessageHandler, filters
         from app.db.session import AsyncSessionLocal
         from app.services.telegram_service import handle_update
 

@@ -50,7 +50,7 @@ export const biometricsApi = {
 // Settings
 export const settingsApi = {
   get: () => api.get<UserSettings>('/api/settings'),
-  update: (data: Partial<UserSettings> & { claude_api_key?: string }) =>
+  update: (data: Record<string, unknown>) =>
     api.put<UserSettings>('/api/settings', data),
 }
 

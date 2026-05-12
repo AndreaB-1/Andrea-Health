@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional, Any, Dict
+from typing import Any, Dict
 
 
 class LoginRequest(BaseModel):

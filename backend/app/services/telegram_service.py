@@ -108,7 +108,7 @@ async def _process_command(text: str, user: User, db: AsyncSession) -> Optional[
             return "❌ Valore non valido"
 
     if text.startswith("/oggi"):
-        from datetime import date, datetime, timezone
+        from datetime import datetime, timezone
         today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         q = select(DiaryEntry).where(
             DiaryEntry.user_id == user.id, DiaryEntry.created_at >= today_start

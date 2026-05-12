@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional, List
-from datetime import datetime, timezone
+from datetime import datetime
 from app.db.session import get_db
 from app.models.user import User
 from app.models.biometric_log import BiometricLog

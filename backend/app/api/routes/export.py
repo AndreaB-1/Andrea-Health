@@ -9,7 +9,6 @@ import csv
 from app.db.session import get_db
 from app.models.user import User
 from app.models.diary_entry import DiaryEntry
-from app.models.biometric_log import BiometricLog
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/api/export", tags=["export"])
