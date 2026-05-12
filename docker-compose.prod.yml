@@ -1,5 +1,10 @@
 version: "3.9"
 
+# Usage on server:
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+#   docker compose -f docker-compose.prod.yml exec backend alembic upgrade head
+
 services:
   db:
     image: postgres:16-alpine
@@ -10,7 +15,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/backup.sh:/backup.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
@@ -23,14 +27,9 @@ services:
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
 
   backend:
-    image: ghcr.io/${GITHUB_REPOSITORY}/backend:latest
+    image: ghcr.io/${GITHUB_REPOSITORY:-andreab-1/andrea-health}/backend:latest
     restart: always
     env_file: .env
     environment:
@@ -38,43 +37,28 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
-
-  telegram:
-    image: ghcr.io/${GITHUB_REPOSITORY}/backend:latest
-    restart: always
-    env_file: .env
-    environment:
-      POSTGRES_HOST: db
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: python -m app.services.telegram_worker
+    ports:
+      - "8000:8000"
 
   frontend:
-    image: ghcr.io/${GITHUB_REPOSITORY}/frontend:latest
-    restart: always
-
-  nginx:
-    image: nginx:alpine
+    image: ghcr.io/${GITHUB_REPOSITORY:-andreab-1/andrea-health}/frontend:latest
     restart: always
     ports:
       - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/nginx-prod.conf:/etc/nginx/conf.d/default.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - certbot_webroot:/var/www/certbot
     depends_on:
       - backend
-      - frontend
+
+  telegram:
+    image: ghcr.io/${GITHUB_REPOSITORY:-andreab-1/andrea-health}/backend:latest
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    command: python -m app.services.telegram_worker
 
 volumes:
   postgres_data:
   redis_data:
-  certbot_webroot:
